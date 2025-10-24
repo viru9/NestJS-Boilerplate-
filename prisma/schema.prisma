@@ -1,0 +1,119 @@
+// Prisma Schema for Backend Boilerplate
+// Database: PostgreSQL with support for AI features
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Model
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  firstName     String?
+  lastName      String?
+  avatarUrl     String?
+  role          Role      @default(USER)
+  isActive      Boolean   @default(true)
+  emailVerified Boolean   @default(false)
+  
+  // Relations
+  conversations   Conversation[]
+  files           File[]
+  refreshTokens   RefreshToken[]
+  
+  // Usage tracking
+  totalTokensUsed Int       @default(0)
+  lastLoginAt     DateTime?
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@map("users")
+  @@index([email])
+}
+
+// Refresh Token Model for JWT authentication
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  @@map("refresh_tokens")
+  @@index([token])
+  @@index([userId])
+}
+
+// Conversation Model for AI chat
+model Conversation {
+  id        String    @id @default(uuid())
+  title     String?
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  metadata  Json?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  @@map("conversations")
+  @@index([userId])
+}
+
+// Message Model for chat messages
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           MessageRole
+  content        String       @db.Text
+  tokens         Int?
+  model          String?
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+  
+  @@map("messages")
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+// File Model for uploaded files
+model File {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  filename     String
+  originalName String
+  mimetype     String
+  size         Int
+  path         String
+  url          String
+  category     String?  @default("general")
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  
+  @@map("files")
+  @@index([userId])
+  @@index([category])
+}
+
+// Enums
+enum Role {
+  USER
+  ADMIN
+  PREMIUM
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}

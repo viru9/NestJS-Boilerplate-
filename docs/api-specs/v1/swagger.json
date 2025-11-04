@@ -123,13 +123,11 @@
         "responses": {
           "200": {
             "description": "Logout successful"
+          },
+          "401": {
+            "description": "Invalid refresh token"
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
         "summary": "Logout user",
         "tags": [
           "Authentication"
@@ -1066,7 +1064,9 @@
         "type": "object",
         "properties": {
           "refreshToken": {
-            "type": "string"
+            "type": "string",
+            "description": "JWT refresh token used for authentication",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           }
         },
         "required": [

@@ -74,16 +74,16 @@ export class AuthController {
     return this.authService.refreshTokens(user.id, user.refreshToken);
   }
 
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout user' })
   @ApiResponse({ status: 200, description: 'Logout successful' })
+  @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   async logout(
-    @CurrentUser('id') userId: string,
     @Body() refreshTokenDto: RefreshTokenDto,
   ): Promise<{ message: string }> {
-    await this.authService.logout(userId, refreshTokenDto.refreshToken);
+    await this.authService.logout(refreshTokenDto.refreshToken);
     return { message: 'Logout successful' };
   }
 

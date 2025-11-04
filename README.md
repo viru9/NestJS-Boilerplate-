@@ -192,8 +192,8 @@ backend/
 ## 📚 API Documentation
 
 Once the application is running, visit:
-- **Swagger UI**: http://localhost:3000/api-docs
-- **Swagger JSON**: http://localhost:3000/api-json
+- **Swagger UI**: http://localhost:8000/api-docs
+- **Swagger JSON**: http://localhost:8000/api-json
 
 ### Main Endpoints
 

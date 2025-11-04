@@ -176,14 +176,29 @@ export class AuthService {
   }
 
   /**
-   * Logout user
+   * Logout user - validates refresh token and removes it from database
    */
-  async logout(userId: string, refreshToken: string): Promise<void> {
-    await this.prisma.refreshToken.deleteMany({
-      where: {
-        userId,
-        token: refreshToken,
-      },
+  async logout(refreshToken: string): Promise<void> {
+    // Verify refresh token exists and get user ID
+    const tokenRecord = await this.prisma.refreshToken.findUnique({
+      where: { token: refreshToken },
+    });
+
+    if (!tokenRecord) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    if (tokenRecord.expiresAt < new Date()) {
+      // Delete expired token and throw error
+      await this.prisma.refreshToken.delete({
+        where: { token: refreshToken },
+      });
+      throw new UnauthorizedException('Refresh token expired');
+    }
+
+    // Delete the refresh token
+    await this.prisma.refreshToken.delete({
+      where: { token: refreshToken },
     });
   }
 

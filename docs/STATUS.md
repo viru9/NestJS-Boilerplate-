@@ -260,9 +260,9 @@ docker-compose exec app npx prisma db seed
 
 ### 2. Access Endpoints
 
-- **API Base:** http://localhost:3000/api/v1
-- **Swagger Docs:** http://localhost:3000/api-docs
-- **Health Check:** http://localhost:3000/api/v1/health
+- **API Base:** http://localhost:8000/api/v1
+- **Swagger Docs:** http://localhost:8000/api-docs
+- **Health Check:** http://localhost:8000/api/v1/health
 
 ### 3. Test Credentials
 
@@ -276,7 +276,7 @@ After seeding:
 ```javascript
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000/ai', {
+const socket = io('http://localhost:8000/ai', {
   auth: { token: 'your-jwt-token' }
 });
 

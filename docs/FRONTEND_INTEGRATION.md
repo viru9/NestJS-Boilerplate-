@@ -32,8 +32,8 @@ VITE_API_BASE_URL=http://localhost:8000/api/v1
 VITE_WS_BASE_URL=http://localhost:8000
 
 # Alternative: Local backend development
-# VITE_API_BASE_URL=http://localhost:3000/api/v1
-# VITE_WS_BASE_URL=http://localhost:3000
+# VITE_API_BASE_URL=http://localhost:8000/api/v1
+# VITE_WS_BASE_URL=http://localhost:8000
 
 VITE_API_TIMEOUT=30000
 ```
@@ -897,7 +897,7 @@ Token might be expired:
 
 ## Resources
 
-- [Backend API Docs](http://localhost:8000/api-docs) (Docker) or [http://localhost:3000/api-docs](http://localhost:3000/api-docs) (Local)
+- [Backend API Docs](http://localhost:8000/api-docs)
 - [Socket.IO Client Docs](https://socket.io/docs/v4/client-api/)
 - [React Query Docs](https://tanstack.com/query/latest)
 - [Axios Docs](https://axios-http.com/docs/intro)

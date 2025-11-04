@@ -30,6 +30,19 @@ async function bootstrap() {
   app.enableCors({
     origin: configService.get<string>('app.corsOrigin'),
     credentials: configService.get<boolean>('app.corsCredentials'),
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'Access-Control-Allow-Headers',
+      'Access-Control-Request-Method',
+      'Access-Control-Request-Headers',
+    ],
+    exposedHeaders: ['Authorization'],
+    optionsSuccessStatus: 200, // Some legacy browsers choke on 204
   });
 
   // Global validation pipe

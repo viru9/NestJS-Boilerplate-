@@ -59,8 +59,8 @@ docker-compose exec app npx prisma migrate dev
 ```
 
 5. **Access the application**
-- API: http://localhost:3000/api/v1
-- Swagger Docs: http://localhost:3000/api-docs
+- API: http://localhost:8000/api/v1 (development)
+- Swagger Docs: http://localhost:8000/api-docs (development)
 
 ### Option 2: Local Development
 
@@ -149,10 +149,17 @@ npm run lint               # Lint code
 npm run lint:fix           # Fix linting issues
 npm run format             # Format code with Prettier
 
-# Docker
+# Docker Commands
 npm run docker:build       # Build Docker image
-npm run docker:up          # Start Docker containers
+npm run docker:up          # Start development containers
 npm run docker:down        # Stop Docker containers
+npm run docker:logs        # View container logs
+
+# Production Docker Commands
+docker-compose -f docker-compose.prod.yml up -d --build    # Build & start production
+docker-compose -f docker-compose.prod.yml down             # Stop production
+docker-compose -f docker-compose.prod.yml logs -f          # View production logs
+docker-compose -f docker-compose.prod.yml ps               # Check service status
 ```
 
 ## 🏗️ Project Structure
@@ -192,7 +199,7 @@ backend/
 ## 📚 API Documentation
 
 Once the application is running, visit:
-- **Swagger UI**: http://localhost:8000/api-docs
+- **Swagger UI**: http://localhost:8000/api-docs 
 - **Swagger JSON**: http://localhost:8000/api-json
 
 ### Main Endpoints
@@ -305,27 +312,91 @@ Detailed documentation available in the `docs/` directory:
 - [Email Service](./docs/EMAIL_SERVICE.md)
 - [Background Jobs](./docs/BACKGROUND_JOBS.md)
 - [Deployment Guide](./docs/DEPLOYMENT.md)
+- [Production CORS Setup](./docs/PRODUCTION_CORS.md)
 - [Testing Guide](./docs/TESTING.md)
 - [Code Quality Guide](./docs/CODE_QUALITY.md)
 
 ## 🚢 Deployment
 
-### Docker Production Build
+### Production Environment Setup
+
+**Important**: Before running production build, set up environment variables to avoid Docker build issues.
+
+#### Step 1: Configure Environment Variables
+
+```bash
+# Copy the production template
+cp env.prod.example .env.prod
+
+# Edit .env.prod with your actual values
+```
+
+**Required Variables:**
+```env
+# Database Configuration (Required)
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_DB=backend_db
+
+# JWT Configuration (Required - Use strong random strings)
+JWT_SECRET=your_very_secure_jwt_secret_key_here_min_32_chars
+JWT_REFRESH_SECRET=your_very_secure_jwt_refresh_secret_key_here_min_32_chars
+
+# API Keys (Optional)
+OPENAI_API_KEY=sk-your_openai_key
+EMAIL_HOST=smtp.your-provider.com
+EMAIL_USER=your_email@domain.com
+EMAIL_PASSWORD=your_email_password
+```
+
+#### Step 2: Production Deployment
+
+```bash
+# Build and start all production services
+docker-compose -f docker-compose.prod.yml up -d --build
+
+# Check container status
+docker-compose -f docker-compose.prod.yml ps
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Stop services
+docker-compose -f docker-compose.prod.yml down
+```
+
+#### Step 3: Verify Deployment
+
+- **API**: http://localhost:8000/api/v1
+- **Health Check**: http://localhost:8000/api/v1/health
+- **API Documentation**: http://localhost:8000/api-docs
+
+### Environment Variables Reference
+
+| Variable | Development | Production | Description |
+|----------|-------------|------------|-------------|
+| `POSTGRES_USER` | `postgres` | Set in `.env.prod` | Database user |
+| `POSTGRES_PASSWORD` | `password` | Set in `.env.prod` | Database password |
+| `POSTGRES_DB` | `backend_db` | Set in `.env.prod` | Database name |
+| `JWT_SECRET` | Development key | **Strong random string** | JWT signing secret |
+| `JWT_REFRESH_SECRET` | Development key | **Strong random string** | JWT refresh secret |
+
+### Docker Production Build (Alternative)
 
 ```bash
 # Build production image
 docker build -t backend-api .
 
 # Run production container
-docker run -p 3000:3000 --env-file .env backend-api
+docker run -p 8000:8000 --env-file .env.prod backend-api
 ```
 
-### Using Docker Compose
+**Note**: The production setup includes fixes for:
+- Husky prepare script errors during Docker build
+- PostgreSQL environment variable warnings
+- Proper multi-stage Docker build optimization
 
-```bash
-# Production deployment
-docker-compose -f docker-compose.prod.yml up -d
-```
+For complete setup guide, see [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md).
 
 ## 🐛 Troubleshooting
 

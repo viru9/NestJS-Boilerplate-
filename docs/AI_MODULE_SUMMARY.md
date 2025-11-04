@@ -184,7 +184,7 @@ REDIS_PASSWORD=
 
 ```bash
 # Send chat message
-curl -X POST http://localhost:3000/api/v1/ai/chat \
+curl -X POST http://localhost:8000/api/v1/ai/chat \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -195,7 +195,7 @@ curl -X POST http://localhost:3000/api/v1/ai/chat \
   }'
 
 # Get usage statistics
-curl -X GET http://localhost:3000/api/v1/ai/usage \
+curl -X GET http://localhost:8000/api/v1/ai/usage \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -204,7 +204,7 @@ curl -X GET http://localhost:3000/api/v1/ai/usage \
 ```javascript
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000/ai', {
+const socket = io('http://localhost:8000/ai', {
   auth: { token: 'your-jwt-token' }
 });
 

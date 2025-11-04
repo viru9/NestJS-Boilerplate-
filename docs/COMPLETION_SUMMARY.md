@@ -384,9 +384,9 @@ docker-compose exec app npx prisma db seed
 
 ### 5. Access Application
 
-- **API:** http://localhost:3000/api/v1
-- **Swagger:** http://localhost:3000/api-docs
-- **Health:** http://localhost:3000/api/v1/health
+- **API:** http://localhost:8000/api/v1
+- **Swagger:** http://localhost:8000/api-docs
+- **Health:** http://localhost:8000/api/v1/health
 
 ### 6. Test Credentials
 
@@ -553,11 +553,11 @@ The boilerplate is 100% complete! Optional enhancements:
 - Testing guide: `TESTING.md`
 
 **API Documentation:**
-- Swagger UI: http://localhost:3000/api-docs
-- OpenAPI JSON: http://localhost:3000/api-json
+- Swagger UI: http://localhost:8000/api-docs
+- OpenAPI JSON: http://localhost:8000/api-json
 
 **Health Checks:**
-- Overall: http://localhost:3000/api/v1/health
+- Overall: http://localhost:8000/api/v1/health
 
 **Logs:**
 - Winston logs in `logs/` directory

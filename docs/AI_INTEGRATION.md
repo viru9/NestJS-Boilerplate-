@@ -239,7 +239,7 @@ Connect to the WebSocket namespace:
 ```typescript
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000/ai', {
+const socket = io('http://localhost:8000/ai', {
   auth: {
     token: accessToken  // JWT token
   }
@@ -333,7 +333,7 @@ function AiChat({ userId, accessToken }) {
 
   useEffect(() => {
     // Connect to WebSocket
-    const newSocket = io('http://localhost:3000/ai', {
+    const newSocket = io('http://localhost:8000/ai', {
       auth: { token: accessToken }
     });
 
@@ -610,7 +610,7 @@ describe('AI Gateway', () => {
   let socket;
 
   beforeAll((done) => {
-    socket = io('http://localhost:3000/ai');
+    socket = io('http://localhost:8000/ai');
     socket.on('connect', done);
   });
 

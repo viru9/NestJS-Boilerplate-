@@ -78,7 +78,7 @@ npm install socket.io-client
 ```typescript
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000/ai', {
+const socket = io('http://localhost:8000/ai', {
   auth: {
     token: 'your-jwt-token'  // Optional: for authentication
   },
@@ -110,7 +110,7 @@ export function useAiSocket(accessToken: string) {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3000/ai', {
+    const newSocket = io('http://localhost:8000/ai', {
       auth: { token: accessToken },
       transports: ['websocket'],
     });
@@ -311,7 +311,7 @@ function AiChatComponent({ userId, accessToken }) {
 
   // Initialize WebSocket
   useEffect(() => {
-    const newSocket = io('http://localhost:3000/ai', {
+    const newSocket = io('http://localhost:8000/ai', {
       auth: { token: accessToken },
       transports: ['websocket'],
     });
@@ -445,7 +445,7 @@ export default {
     const conversationId = ref(null);
 
     onMounted(() => {
-      socket.value = io('http://localhost:3000/ai', {
+      socket.value = io('http://localhost:8000/ai', {
         auth: { token: localStorage.getItem('accessToken') },
         transports: ['websocket'],
       });
@@ -513,7 +513,7 @@ export default {
 Socket.IO handles reconnection automatically:
 
 ```typescript
-const socket = io('http://localhost:3000/ai', {
+const socket = io('http://localhost:8000/ai', {
   reconnection: true,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
@@ -558,7 +558,7 @@ socket.close();
 Pass JWT token during connection:
 
 ```typescript
-const socket = io('http://localhost:3000/ai', {
+const socket = io('http://localhost:8000/ai', {
   auth: {
     token: 'your-jwt-token'
   }
@@ -692,7 +692,7 @@ describe('AI Gateway', () => {
     app = module.createNestApplication();
     await app.listen(3000);
 
-    socket = io('http://localhost:3000/ai', {
+    socket = io('http://localhost:8000/ai', {
       transports: ['websocket'],
     });
   });

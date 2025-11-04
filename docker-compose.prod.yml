@@ -2,14 +2,12 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: backend_postgres
+    container_name: backend_postgres_prod
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_DB: ${POSTGRES_DB:-backend_db}
-    ports:
-      - '5432:5432'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: backend_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,10 +21,8 @@ services:
   # Redis
   redis:
     image: redis:7-alpine
-    container_name: backend_redis
+    container_name: backend_redis_prod
     restart: unless-stopped
-    ports:
-      - '6379:6379'
     volumes:
       - redis_data:/data
     healthcheck:
@@ -37,45 +33,51 @@ services:
     networks:
       - backend_network
 
-  # NestJS Application (Development)
+  # NestJS Application (Production)
   app:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       args:
         DATABASE_URL: postgresql://dummy:dummy@dummy:5432/dummy?schema=public
-    container_name: backend_app
+    container_name: backend_app_prod
     restart: unless-stopped
     ports:
-      - '8000:8000'
+      - '${APP_PORT:-8000}:8000'
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 8000
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-backend_db}?schema=public
+      API_PREFIX: /api/v1
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/backend_db?schema=public
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production-min-32-characters}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-key-change-in-production-min-32}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       EMAIL_HOST: ${EMAIL_HOST}
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_USER: ${EMAIL_USER}
       EMAIL_PASSWORD: ${EMAIL_PASSWORD}
-      CORS_ORIGIN: http://localhost:3000
-      CORS_CREDENTIALS: true
+      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_ENVIRONMENT: production
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://yourdomain.com}
+      CORS_CREDENTIALS: ${CORS_CREDENTIALS:-true}
+      FRONTEND_URL: ${FRONTEND_URL:-https://yourdomain.com}
     volumes:
-      - .:/app
-      - /app/node_modules
       - ./uploads:/app/uploads
       - ./logs:/app/logs
     networks:
       - backend_network
-    command: npm run start:dev
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api/v1/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   postgres_data:
@@ -86,4 +88,3 @@ volumes:
 networks:
   backend_network:
     driver: bridge
-

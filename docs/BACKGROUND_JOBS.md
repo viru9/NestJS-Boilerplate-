@@ -501,7 +501,7 @@ export class AppModule {}
 
 ### Access Dashboard
 
-Navigate to: `http://localhost:3000/admin/queues`
+Navigate to: `http://localhost:8000/admin/queues`
 
 Features:
 - View all queues

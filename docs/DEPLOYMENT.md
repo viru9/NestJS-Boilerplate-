@@ -39,8 +39,8 @@ docker-compose logs -f app
 ```
 
 Access the application:
-- API: http://localhost:3000/api/v1
-- Swagger: http://localhost:3000/api-docs
+- API: http://localhost:8000/api/v1
+- Swagger: http://localhost:8000/api-docs
 - Prisma Studio: Run `docker-compose exec app npx prisma studio`
 
 ### Production Deployment
@@ -98,7 +98,11 @@ SENTRY_ENVIRONMENT=production
 
 # CORS
 CORS_ORIGIN=https://your-frontend-domain.com
+CORS_CREDENTIALS=true
+FRONTEND_URL=https://your-frontend-domain.com
 ```
+
+> **📚 Detailed CORS Configuration**: For comprehensive CORS setup including multiple domains, security best practices, and troubleshooting, see [PRODUCTION_CORS.md](./PRODUCTION_CORS.md).
 
 ### Security Considerations
 
@@ -201,7 +205,7 @@ GET /api/v1/health
 Docker health check is configured:
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/v1/health', ...)"
+  CMD node -e "require('http').get('http://localhost:8000/api/v1/health', ...)"
 ```
 
 ## Monitoring & Logging
@@ -264,9 +268,9 @@ Use nginx as reverse proxy:
 
 ```nginx
 upstream backend {
-    server app1:3000;
-    server app2:3000;
-    server app3:3000;
+    server app1:8000;
+    server app2:8000;
+    server app3:8000;
 }
 
 server {

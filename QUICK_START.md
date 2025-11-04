@@ -32,8 +32,8 @@ docker-compose exec app npx prisma db seed
 
 ### Step 4: Test It
 Open your browser:
-- **API Docs:** http://localhost:3000/api-docs
-- **Health Check:** http://localhost:3000/api/v1/health
+- **API Docs:** http://localhost:8000/api-docs
+- **Health Check:** http://localhost:8000/api/v1/health
 
 ---
 
@@ -67,6 +67,68 @@ npm run start:dev
 
 ---
 
+## Option 3: Production Docker Build
+
+### Step 1: Environment Setup
+```bash
+# Copy production environment template
+cp env.prod.example .env.prod
+
+# Edit .env.prod with your production values
+# Required: POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+# Required: JWT_SECRET, JWT_REFRESH_SECRET (use strong random strings)
+```
+
+**Minimum Required Variables:**
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_secure_password
+POSTGRES_DB=backend_db
+JWT_SECRET=your_very_secure_jwt_secret_key_here_min_32_chars
+JWT_REFRESH_SECRET=your_very_secure_jwt_refresh_secret_key_here_min_32_chars
+```
+
+### Step 2: Build and Deploy
+```bash
+# Build and start production services
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+### Step 3: Run Migrations (Production)
+```bash
+# Run database migrations
+docker-compose -f docker-compose.prod.yml exec app npx prisma migrate deploy
+
+# Seed database (optional)
+docker-compose -f docker-compose.prod.yml exec app npx prisma db seed
+```
+
+### Step 4: Verify Deployment
+```bash
+# Check all services are running
+docker-compose -f docker-compose.prod.yml ps
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Test API health
+curl http://localhost:8000/api/v1/health
+```
+
+**Production URLs:**
+- **API:** http://localhost:8000/api/v1
+- **Health Check:** http://localhost:8000/api/v1/health  
+- **API Docs:** http://localhost:8000/api-docs
+
+**Production Features:**
+- ✅ Multi-stage Docker build (optimized)
+- ✅ Non-root user (security)
+- ✅ Health checks enabled
+- ✅ No Husky build errors
+- ✅ Proper environment variable handling
+
+---
+
 ## Test Accounts
 
 After seeding, use these credentials:
@@ -83,7 +145,7 @@ After seeding, use these credentials:
 
 ### 1. Register a New User
 ```bash
-curl -X POST http://localhost:3000/api/v1/auth/register \
+curl -X POST http://localhost:8000/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -95,7 +157,7 @@ curl -X POST http://localhost:3000/api/v1/auth/register \
 
 ### 2. Login
 ```bash
-curl -X POST http://localhost:3000/api/v1/auth/login \
+curl -X POST http://localhost:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -107,13 +169,13 @@ Copy the `accessToken` from the response.
 
 ### 3. Get Profile
 ```bash
-curl http://localhost:3000/api/v1/users/me \
+curl http://localhost:8000/api/v1/users/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 ### 4. Upload a File
 ```bash
-curl -X POST http://localhost:3000/api/v1/storage/upload \
+curl -X POST http://localhost:8000/api/v1/storage/upload \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -F "file=@/path/to/your/file.jpg"
 ```
@@ -122,7 +184,7 @@ curl -X POST http://localhost:3000/api/v1/storage/upload \
 
 ## Explore with Swagger
 
-Visit http://localhost:3000/api-docs for interactive API documentation.
+Visit http://localhost:8000/api-docs for interactive API documentation.
 
 1. Click **"Authorize"** button
 2. Enter: `Bearer YOUR_ACCESS_TOKEN`
@@ -166,7 +228,7 @@ docker-compose down
 ```bash
 # Change port in docker-compose.yml
 ports:
-  - "3001:3000"  # Use 3001 instead
+  - "8001:8000"  # Use 8001 instead
 ```
 
 ### Database Connection Failed
@@ -191,8 +253,8 @@ docker-compose ps redis
    - `docs/DEPLOYMENT.md` - Deploy to production
 
 2. **Integrate with Frontend**
-   - API base URL: http://localhost:3000/api/v1
-   - Swagger JSON: http://localhost:3000/api-json
+   - API base URL: http://localhost:8000/api/v1
+   - Swagger JSON: http://localhost:8000/api-json
 
 3. **Customize**
    - Add your business logic
@@ -213,10 +275,16 @@ npm run prisma:migrate     # Run migrations
 npm run prisma:seed        # Seed data
 npm run prisma:generate    # Generate Prisma client
 
-# Docker
-npm run docker:up          # Start services
+# Docker Development
+npm run docker:up          # Start development services
 npm run docker:down        # Stop services
 npm run docker:logs        # View logs
+
+# Docker Production
+docker-compose -f docker-compose.prod.yml up -d --build    # Build & start production
+docker-compose -f docker-compose.prod.yml down             # Stop production
+docker-compose -f docker-compose.prod.yml logs -f          # View production logs
+docker-compose -f docker-compose.prod.yml ps               # Check service status
 
 # Code Quality
 npm run lint               # Lint code
@@ -255,8 +323,8 @@ OPENAI_API_KEY=sk-...
 ## Help & Support
 
 - **Documentation:** `docs/` directory
-- **API Docs:** http://localhost:3000/api-docs
-- **Swagger JSON:** http://localhost:3000/api-json
+- **API Docs:** http://localhost:8000/api-docs
+- **Swagger JSON:** http://localhost:8000/api-json
 
 ---
 

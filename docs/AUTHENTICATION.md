@@ -385,19 +385,19 @@ createdAt   TIMESTAMP DEFAULT NOW()
 
 ```bash
 # Login
-curl -X POST http://localhost:3000/api/v1/auth/login \
+curl -X POST http://localhost:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"Password123!"}'
 
 # Use token
-curl -X GET http://localhost:3000/api/v1/users/me \
+curl -X GET http://localhost:8000/api/v1/users/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
 ### Using Postman/Thunder Client
 
 1. Create environment variables:
-   - `baseUrl`: http://localhost:3000/api/v1
+   - `baseUrl`: http://localhost:8000/api/v1
    - `accessToken`: (will be set automatically)
    - `refreshToken`: (will be set automatically)
 

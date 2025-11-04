@@ -370,9 +370,9 @@ docker-compose exec app npx prisma migrate dev
 docker-compose exec app npx prisma db seed
 
 # Access
-# API: http://localhost:3000/api/v1
-# Swagger: http://localhost:3000/api-docs
-# Health: http://localhost:3000/api/v1/health
+# API: http://localhost:8000/api/v1
+# Swagger: http://localhost:8000/api-docs
+# Health: http://localhost:8000/api/v1/health
 ```
 
 **Status:** ✅ **Production Ready** | **Progress:** 🎉 **100%**

@@ -8,7 +8,7 @@ Choose your development approach:
 
 | **Docker Stack** 🐳 | **Local Development** 💻 |
 |---------------------|--------------------------|
-| `docker-compose up -d` | `docker-compose up -d postgres redis` + `npm run start:dev` |
+| `npm run docker:up` | `npm run docker:up postgres redis` + `npm run start:dev` |
 | **Port:** 8000 | **Port:** 3000 |
 | **Best for:** Complete environment | **Best for:** Backend development |
 | All services included | Faster restarts & debugging |
@@ -58,7 +58,7 @@ You have **two ways** to run the backend, each with different ports and setups:
 
 1. **Start all services**
 ```bash
-docker-compose up -d
+npm run docker:up
 ```
 
 2. **Access the application**
@@ -68,7 +68,7 @@ docker-compose up -d
 
 3. **Stop services when done**
 ```bash
-docker-compose down
+npm run docker:down
 ```
 
 **✅ Advantages:**
@@ -87,7 +87,7 @@ docker-compose down
 
 1. **Start databases only**
 ```bash
-docker-compose up -d postgres redis
+npm run docker:up postgres redis
 ```
 
 2. **Install dependencies** (first time only)
@@ -124,14 +124,14 @@ docker-compose stop postgres redis
 
 ```bash
 # Switch from Docker to Local Development
-docker-compose down          # Stop all Docker services  
-docker-compose up -d postgres redis  # Start only databases
+npm run docker:down          # Stop all Docker services  
+npm run docker:up postgres redis  # Start only databases
 npm run start:dev           # Start backend locally on port 3000
 
 # Switch from Local to Docker  
 # Stop local backend (Ctrl+C)
-docker-compose down         # Stop databases
-docker-compose up -d        # Start full stack on port 8000
+npm run docker:down         # Stop databases
+npm run docker:up        # Start full stack on port 8000
 ```
 
 ### 🚨 Port Conflict Troubleshooting
@@ -221,9 +221,9 @@ npm run docker:down        # Stop Docker containers
 npm run docker:logs        # View container logs
 
 # Production Docker Commands
-docker-compose -f docker-compose.prod.yml up -d --build    # Build & start production
-docker-compose -f docker-compose.prod.yml down             # Stop production
-docker-compose -f docker-compose.prod.yml logs -f          # View production logs
+npm run docker:prod    # Build & start production
+npm run docker:prod:down             # Stop production
+npm run docker:prod:logs          # View production logs
 docker-compose -f docker-compose.prod.yml ps               # Check service status
 ```
 
@@ -426,16 +426,16 @@ EMAIL_PASSWORD=your_email_password
 
 ```bash
 # Build and start all production services
-docker-compose -f docker-compose.prod.yml up -d --build
+npm run docker:prod
 
 # Check container status
 docker-compose -f docker-compose.prod.yml ps
 
 # View logs
-docker-compose -f docker-compose.prod.yml logs -f
+npm run docker:prod:logs
 
 # Stop services
-docker-compose -f docker-compose.prod.yml down
+npm run docker:prod:down
 ```
 
 #### Step 3: Verify Deployment
@@ -482,7 +482,7 @@ netstat -ano | findstr :8000
 taskkill /PID <process_id> /F
 
 # Then restart Docker stack
-docker-compose up -d
+npm run docker:up
 ```
 
 **Port 3000 already in use (Local Development):**
@@ -514,7 +514,7 @@ docker-compose logs postgres
 docker-compose restart postgres
 
 # Full restart if needed
-docker-compose down && docker-compose up -d
+npm run docker:down && npm run docker:up
 ```
 
 **For Local Development:**
@@ -523,7 +523,7 @@ docker-compose down && docker-compose up -d
 docker-compose ps postgres
 
 # Start database if stopped
-docker-compose up -d postgres
+npm run docker:up postgres
 
 # Check connection from host
 docker-compose exec postgres psql -U postgres -d backend_db -c "SELECT 1"

@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -16,6 +17,8 @@ import { generateToken } from '../../utils/helpers';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -82,34 +85,48 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
     const { email, password } = loginDto;
 
-    const user = await this.validateUser(email, password);
+    try {
+      this.logger.log(`Login attempt for email: ${email}`);
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      const user = await this.validateUser(email, password);
+
+      if (!user) {
+        this.logger.warn(`Login failed for email: ${email} - Invalid credentials`);
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      this.logger.log(`Login successful for user: ${user.id}`);
+
+      // Update last login
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { lastLoginAt: new Date() },
+      });
+
+      // Generate tokens
+      const tokens = await this.generateTokens(user.id, user.email);
+
+      // Save refresh token
+      await this.saveRefreshToken(user.id, tokens.refreshToken);
+
+      return {
+        ...tokens,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName ?? undefined,
+          lastName: user.lastName ?? undefined,
+          role: user.role as string,
+        },
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      
+      this.logger.error(`Login error for email: ${email}`, error.stack);
+      throw new UnauthorizedException('Authentication failed');
     }
-
-    // Update last login
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
-
-    // Generate tokens
-    const tokens = await this.generateTokens(user.id, user.email);
-
-    // Save refresh token
-    await this.saveRefreshToken(user.id, tokens.refreshToken);
-
-    return {
-      ...tokens,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName ?? undefined,
-        lastName: user.lastName ?? undefined,
-        role: user.role as string,
-      },
-    };
   }
 
   /**
@@ -269,26 +286,39 @@ export class AuthService {
    * Validate user credentials
    */
   async validateUser(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+      });
 
-    if (!user) {
+      if (!user) {
+        this.logger.debug(`User not found with email: ${email}`);
+        return null;
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordValid) {
+        this.logger.debug(`Invalid password for email: ${email}`);
+        return null;
+      }
+
+      if (!user.isActive) {
+        this.logger.warn(`Inactive user attempted login: ${email}`);
+        throw new UnauthorizedException('User account is inactive');
+      }
+
+      this.logger.debug(`User validation successful for: ${email}`);
+      const { password: _, ...result } = user;
+      return result;
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      
+      this.logger.error(`Error validating user ${email}:`, error.stack);
       return null;
     }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return null;
-    }
-
-    if (!user.isActive) {
-      throw new UnauthorizedException('User account is inactive');
-    }
-
-    const { password: _, ...result } = user;
-    return result;
   }
 
   /**

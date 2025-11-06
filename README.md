@@ -2,6 +2,19 @@
 
 Production-ready backend boilerplate built with NestJS, featuring authentication, AI integration, file uploads, real-time communication, and comprehensive tooling.
 
+## 🚀 Quick Start
+
+Choose your development approach:
+
+| **Docker Stack** 🐳 | **Local Development** 💻 |
+|---------------------|--------------------------|
+| `docker-compose up -d` | `docker-compose up -d postgres redis` + `npm run start:dev` |
+| **Port:** 8000 | **Port:** 3000 |
+| **Best for:** Complete environment | **Best for:** Backend development |
+| All services included | Faster restarts & debugging |
+
+> **New to this project?** → Use **Docker Stack** for the fastest setup!
+
 ## 🚀 Features
 
 ### Core Features
@@ -33,62 +46,112 @@ Production-ready backend boilerplate built with NestJS, featuring authentication
 - Redis 7+ (if not using Docker)
 - npm or yarn
 
-## 🛠️ Installation
+## 🛠️ Development Options
 
-### Option 1: Using Docker (Recommended)
+You have **two ways** to run the backend, each with different ports and setups:
 
-1. **Clone the repository**
-```bash
-cd backend
-```
+### Option 1: Full Docker Stack (Recommended) 🐳
 
-2. **Create environment file**
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
+**When to use**: Complete development environment with databases included  
+**Port**: `8000`  
+**Includes**: PostgreSQL + Redis + Backend API
 
-3. **Start all services**
+1. **Start all services**
 ```bash
 docker-compose up -d
 ```
 
-4. **Run database migrations**
+2. **Access the application**
+- **API Base**: http://localhost:8000/api/v1
+- **Health Check**: http://localhost:8000/api/v1/health  
+- **Swagger Docs**: http://localhost:8000/api-docs
+
+3. **Stop services when done**
 ```bash
-docker-compose exec app npx prisma migrate dev
+docker-compose down
 ```
 
-5. **Access the application**
-- API: http://localhost:8000/api/v1 (development)
-- Swagger Docs: http://localhost:8000/api-docs (development)
+**✅ Advantages:**
+- No local database setup required
+- Consistent environment
+- Matches production setup
+- All services included (PostgreSQL, Redis, Backend)
 
-### Option 2: Local Development
+---
 
-1. **Install dependencies**
+### Option 2: Local Development 💻
+
+**When to use**: Frontend development or when you need to modify backend code frequently  
+**Port**: `3000`  
+**Requirements**: Docker for databases, local Node.js for backend
+
+1. **Start databases only**
+```bash
+docker-compose up -d postgres redis
+```
+
+2. **Install dependencies** (first time only)
 ```bash
 npm install
 ```
 
-2. **Set up environment variables**
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-3. **Start PostgreSQL and Redis**
-```bash
-# Make sure PostgreSQL and Redis are running locally
-```
-
-4. **Run Prisma migrations**
-```bash
-npx prisma migrate dev
-npx prisma generate
-```
-
-5. **Start the development server**
+3. **Start the backend locally** 
 ```bash
 npm run start:dev
+```
+*Note: `.env` file is already configured with PORT=3000*
+
+4. **Access the application**
+- **API Base**: http://localhost:3000/api/v1
+- **Health Check**: http://localhost:3000/api/v1/health  
+- **Swagger Docs**: http://localhost:3000/api-docs
+
+5. **Stop services when done**
+```bash
+# Stop local backend: Ctrl+C
+docker-compose stop postgres redis
+```
+
+**✅ Advantages:**
+- Faster backend restarts during development
+- Easy debugging with breakpoints
+- Hot reload for code changes
+- Uses different port (3000) than Docker version
+
+---
+
+### 🔄 Switching Between Options
+
+```bash
+# Switch from Docker to Local Development
+docker-compose down          # Stop all Docker services  
+docker-compose up -d postgres redis  # Start only databases
+npm run start:dev           # Start backend locally on port 3000
+
+# Switch from Local to Docker  
+# Stop local backend (Ctrl+C)
+docker-compose down         # Stop databases
+docker-compose up -d        # Start full stack on port 8000
+```
+
+### 🚨 Port Conflict Troubleshooting
+
+If you get `EADDRINUSE` errors:
+
+**For Docker (port 8000):**
+```bash
+# Check what's using port 8000
+netstat -ano | findstr :8000
+# Kill the process
+taskkill /PID <process_id> /F
+```
+
+**For Local Development (port 3000):**
+```bash  
+# Check what's using port 3000
+netstat -ano | findstr :3000
+# Kill the process or edit .env to use different port
+PORT=3001
 ```
 
 ## 📝 Environment Variables
@@ -127,6 +190,8 @@ EMAIL_PASSWORD=your-app-password
 # Development
 npm run start:dev          # Start with hot reload
 npm run start:debug        # Start in debug mode
+npm run kill:port          # Kill processes using port 3000
+npm run restart:dev        # Kill port 3000 and restart dev server
 
 # Production
 npm run build              # Build the application
@@ -198,9 +263,17 @@ backend/
 
 ## 📚 API Documentation
 
-Once the application is running, visit:
+Swagger documentation is available at different URLs depending on your setup:
+
+### Docker Stack (Port 8000)
 - **Swagger UI**: http://localhost:8000/api-docs 
 - **Swagger JSON**: http://localhost:8000/api-json
+- **API Base**: http://localhost:8000/api/v1
+
+### Local Development (Port 3000)  
+- **Swagger UI**: http://localhost:3000/api-docs
+- **Swagger JSON**: http://localhost:3000/api-json
+- **API Base**: http://localhost:3000/api/v1
 
 ### Main Endpoints
 
@@ -400,35 +473,104 @@ For complete setup guide, see [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md).
 
 ## 🐛 Troubleshooting
 
-### Database Connection Issues
+### Port Conflicts (EADDRINUSE Error)
+
+**Port 8000 already in use (Docker):**
 ```bash
-# Check if PostgreSQL is running
+# Find and kill the process using port 8000
+netstat -ano | findstr :8000
+taskkill /PID <process_id> /F
+
+# Then restart Docker stack
+docker-compose up -d
+```
+
+**Port 3000 already in use (Local Development):**
+```bash
+# Quick fix using new convenience scripts
+npm run kill:port          # Kill port 3000 processes
+npm run restart:dev        # Kill port 3000 and restart
+
+# Manual approach (if needed)
+netstat -ano | findstr :3000
+taskkill /PID <process_id> /F
+
+# Or change port in .env file
+echo PORT=3001 >> .env
+npm run start:dev
+```
+
+### Database Connection Issues
+
+**For Docker Stack:**
+```bash
+# Check if all containers are running
 docker-compose ps
 
-# View logs
+# View PostgreSQL logs
 docker-compose logs postgres
 
-# Restart database
+# Restart database service
 docker-compose restart postgres
+
+# Full restart if needed
+docker-compose down && docker-compose up -d
+```
+
+**For Local Development:**
+```bash
+# Check if database container is running
+docker-compose ps postgres
+
+# Start database if stopped
+docker-compose up -d postgres
+
+# Check connection from host
+docker-compose exec postgres psql -U postgres -d backend_db -c "SELECT 1"
 ```
 
 ### Redis Connection Issues
 ```bash
-# Check Redis connection
+# Check Redis status
 docker-compose logs redis
 
 # Test Redis connection
 docker-compose exec redis redis-cli ping
+
+# Should return "PONG"
 ```
 
 ### Prisma Issues
 ```bash
-# Reset database
+# Regenerate Prisma client
+npx prisma generate
+
+# View database schema
+npx prisma studio
+
+# Reset database (WARNING: Deletes all data)
 npx prisma migrate reset
 
-# Regenerate client
-npx prisma generate
+# Apply pending migrations
+npx prisma migrate dev
 ```
+
+### Application Won't Start
+
+**Check logs for specific errors:**
+```bash
+# Docker logs
+docker-compose logs app
+
+# Local development
+# Check terminal output for errors
+```
+
+**Common issues:**
+- Missing environment variables (check `.env` file)
+- Database connection failed (see Database Issues above)
+- Port already in use (see Port Conflicts above)
+- Missing dependencies (`npm install`)
 
 ## 🤝 Contributing
 

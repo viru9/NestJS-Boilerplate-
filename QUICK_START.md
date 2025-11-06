@@ -18,7 +18,7 @@ docker-compose up -d
 This starts:
 - PostgreSQL (port 5432)
 - Redis (port 6379)
-- Backend API (port 3000)
+- Backend API (port 8000)
 
 ### Step 2: Run Migrations
 ```bash
@@ -48,11 +48,8 @@ npm install
 Make sure PostgreSQL and Redis are running locally.
 
 ### Step 3: Configure Environment
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your database credentials.
+A `.env` file is already created for local development with PORT=3000.
+If you need to customize database credentials or other settings, edit the `.env` file.
 
 ### Step 4: Run Migrations
 ```bash
@@ -185,6 +182,36 @@ curl -X POST http://localhost:8000/api/v1/storage/upload \
 ## Explore with Swagger
 
 Visit http://localhost:8000/api-docs for interactive API documentation.
+
+## 🔧 Troubleshooting
+
+### Port Already in Use Error
+
+If you get `EADDRINUSE :::8000` error:
+
+1. **Check for running Docker containers:**
+   ```bash
+   docker ps
+   docker-compose down  # Stop all containers
+   ```
+
+2. **Check for other processes using the port:**
+   ```bash
+   # Windows
+   netstat -ano | findstr :8000
+   taskkill /PID <process_id> /F
+   
+   # macOS/Linux  
+   lsof -ti:8000 | xargs kill -9
+   ```
+
+3. **Use different ports:**
+   - For local development: PORT is set to 3000 in `.env`
+   - For Docker: Change port mapping in `docker-compose.yml`
+
+---
+
+## Test Endpoints
 
 1. Click **"Authorize"** button
 2. Enter: `Bearer YOUR_ACCESS_TOKEN`

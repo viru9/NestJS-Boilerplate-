@@ -47,7 +47,7 @@ services:
     container_name: backend_app
     restart: unless-stopped
     ports:
-      - '8000:8000'
+      - '3000:3000'
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,7 +55,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: development
-      PORT: 8000
+      PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-backend_db}?schema=public
       REDIS_HOST: redis
       REDIS_PORT: 6379

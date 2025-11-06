@@ -1,0 +1,39 @@
+[Unit]
+Description=Backend API Service
+Documentation=https://github.com/backend-api
+After=network.target postgresql.service redis.service
+Wants=postgresql.service redis.service
+
+[Service]
+Type=simple
+User=backend
+Group=backend
+WorkingDirectory=/opt/backend
+ExecStart=/usr/bin/node dist/src/main.js
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=backend-api
+
+# Environment variables
+EnvironmentFile=/opt/backend/.env
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/backend/uploads /opt/backend/logs
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=32768
+MemoryMax=2G
+CPUQuota=200%
+
+[Install]
+WantedBy=multi-user.target

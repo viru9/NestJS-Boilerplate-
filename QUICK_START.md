@@ -12,7 +12,7 @@ Get your backend running in **5 minutes**!
 ### Step 1: Start Services
 ```bash
 cd "D:\Sample Apps\backend"
-docker-compose up -d
+npm run docker:up
 ```
 
 This starts:
@@ -88,7 +88,7 @@ JWT_REFRESH_SECRET=your_very_secure_jwt_refresh_secret_key_here_min_32_chars
 ### Step 2: Build and Deploy
 ```bash
 # Build and start production services
-docker-compose -f docker-compose.prod.yml up -d --build
+npm run docker:prod
 ```
 
 ### Step 3: Run Migrations (Production)
@@ -106,7 +106,7 @@ docker-compose -f docker-compose.prod.yml exec app npx prisma db seed
 docker-compose -f docker-compose.prod.yml ps
 
 # View logs
-docker-compose -f docker-compose.prod.yml logs -f
+npm run docker:prod:logs
 
 # Test API health
 curl http://localhost:8000/api/v1/health
@@ -308,9 +308,9 @@ npm run docker:down        # Stop services
 npm run docker:logs        # View logs
 
 # Docker Production
-docker-compose -f docker-compose.prod.yml up -d --build    # Build & start production
-docker-compose -f docker-compose.prod.yml down             # Stop production
-docker-compose -f docker-compose.prod.yml logs -f          # View production logs
+npm run docker:prod    # Build & start production
+npm run docker:prod:down             # Stop production
+npm run docker:prod:logs          # View production logs
 docker-compose -f docker-compose.prod.yml ps               # Check service status
 
 # Code Quality
